@@ -1,0 +1,15 @@
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y exim4 curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy Exim configuration
+COPY config/exim/exim4.conf /etc/exim4/exim4.conf
+COPY config/exim/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 25
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["exim", "-bdf", "-q30m"]

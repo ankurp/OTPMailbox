@@ -52,8 +52,9 @@ export default class extends Controller {
       }
     })
 
+    this.toggleTarget.classList.add("is-loading")
     this.toggleTarget.textContent = "Stop"
-    this.setStatus("Connecting…")
+    this.setStatus("Trigger an OTP email to see it appear here in real time. Watching for incoming mail for " + address)
   }
 
   stop() {
@@ -61,7 +62,10 @@ export default class extends Controller {
       this.source.close()
       this.source = null
     }
-    if (this.hasToggleTarget) this.toggleTarget.textContent = "Listen"
+    if (this.hasToggleTarget) {
+      this.toggleTarget.classList.remove("is-loading")
+      this.toggleTarget.textContent = "Listen"
+    }
   }
 
   setStatus(text) {

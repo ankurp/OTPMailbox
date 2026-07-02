@@ -4,6 +4,6 @@ class HomesTest < ApplicationSystemTestCase
   test "visiting the homepage" do
     visit root_url
 
-    assert_selector "h1", text: "OTP Mailbox"
+    assert_selector "h1", text: "OTP Inbox"
   end
 end

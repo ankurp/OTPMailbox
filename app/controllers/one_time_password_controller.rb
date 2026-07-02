@@ -3,12 +3,12 @@ class OneTimePasswordController < ApplicationController
 
   skip_forgery_protection
 
-  # How often an idle stream emits a keep-alive comment so the connection (and
-  # any intermediary proxy) stays open while waiting for an OTP.
-  STREAM_KEEPALIVE_INTERVAL = 20.seconds
   # Maximum time a single stream connection is held open before it closes and
   # lets the client reconnect. Keeps long-lived threads/connections bounded.
   STREAM_TIMEOUT = 5.minutes
+  # How often an idle stream emits a keep-alive comment so the connection (and
+  # any intermediary proxy) stays open, and a dropped client is detected.
+  STREAM_KEEPALIVE_INTERVAL = 20.seconds
   # Reconnection delay (ms) advertised to the browser's EventSource.
   STREAM_RETRY_MS = 3_000
 
@@ -103,35 +103,49 @@ class OneTimePasswordController < ApplicationController
 
     sse = SSE.new(response.stream, retry: STREAM_RETRY_MS)
 
-    # Signalled by the callback once it has delivered an OTP and torn down the
-    # subscription/stream, so the timeout path below knows it can stand down.
-    done = Thread::Queue.new
+    # The pub/sub callback runs on an Action Cable worker thread; it only hands
+    # the message to this request thread, which owns every write to the socket
+    # (OTP and keep-alives alike) so the two never race.
+    queue = Thread::Queue.new
     broadcasting = OneTimePassword.stream_name_for(email)
+    callback = ->(message) { queue.push(message) }
 
-    # Runs on an Action Cable worker thread: write the OTP, tear down the
-    # subscription/stream, then signal completion.
-    callback = ->(message) do
-      write_otp(sse, ActiveSupport::JSON.decode(message))
+    ActionCable.server.pubsub.subscribe(broadcasting, callback)
+
+    begin
+      wait_for_otp(sse, queue)
     rescue ActionController::Live::ClientDisconnected, IOError
       # Client went away mid-stream; fall through to teardown.
     ensure
       ActionCable.server.pubsub.unsubscribe(broadcasting, callback)
       sse.close
-      done.push(true)
     end
-
-    ActionCable.server.pubsub.subscribe(broadcasting, callback)
-
-    # Block until the callback delivers an OTP. If none arrives before the
-    # timeout, unsubscribe and close the stream ourselves; the client then
-    # reconnects (no Last-Event-ID) and keeps waiting.
-    return if done.pop(timeout: STREAM_TIMEOUT.to_f)
-
-    ActionCable.server.pubsub.unsubscribe(broadcasting, callback)
-    sse.close
   end
 
   private
+
+  # Blocks until an OTP is broadcast for this subscription or the stream times
+  # out, emitting a keep-alive comment whenever it has waited a full interval
+  # with no OTP. All writes happen here (single writer) — the pub/sub callback
+  # only feeds the queue. A failed keep-alive write also surfaces a disconnected
+  # client promptly instead of waiting out the full timeout.
+  def wait_for_otp(sse, queue)
+    deadline = Time.current + STREAM_TIMEOUT
+
+    loop do
+      message = queue.pop(timeout: STREAM_KEEPALIVE_INTERVAL.to_f)
+
+      if message
+        write_otp(sse, ActiveSupport::JSON.decode(message))
+        return
+      end
+
+      return if Time.current >= deadline
+
+      # Keep-alive comment (a line starting with ':') holds the connection open.
+      response.stream.write(":keep-alive\n\n")
+    end
+  end
 
   # Writes an OTP payload as a named SSE event, using the record id as the SSE
   # event id so the browser echoes it back via Last-Event-ID on reconnect.

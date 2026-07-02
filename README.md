@@ -1,4 +1,4 @@
-# OTP Mailbox
+# OTP Inbox
 
 A Rails app that receives all incoming emails via SendGrid's Inbound Parse webhook, extracts OTP codes, and exposes a simple API to retrieve them.
 

@@ -1,0 +1,22 @@
+<% content_for :title, "OTPs for #{@email}" %>
+<div class="container">
+  <h1>OTP Mailbox</h1>
+  <p class="tagline"><%= @email %> &middot; <%= @otp_records.size %> recent</p>
+
+  <% if @otp_records.any? %>
+    <% @otp_records.each do |record| %>
+      <div class="card">
+        <div class="otp-code"><%= record.otp_code %></div>
+        <div class="meta">
+          <div><span class="label">Subject</span> <strong><%= record.subject %></strong></div>
+          <div><span class="label">Sender</span> <strong><%= record.sender_email %></strong></div>
+          <div><span class="label">Received</span> <strong><%= record.received_at.iso8601 %></strong></div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="card">
+      <p class="empty">No OTPs found for this email yet.</p>
+    </div>
+  <% end %>
+</div>

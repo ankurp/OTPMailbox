@@ -1,0 +1,17 @@
+<% content_for :title, "OTP for #{@email}" %>
+<div class="container">
+  <h1>OTP Mailbox</h1>
+  <p class="tagline"><%= @email %></p>
+
+  <div class="card">
+    <h2>Most Recent Code</h2>
+    <div class="otp-code"><%= @otp_record.otp_code %></div>
+    <div class="meta">
+      <div><span class="label">Subject</span> <strong><%= @otp_record.subject %></strong></div>
+      <div><span class="label">Sender</span> <strong><%= @otp_record.sender_email %></strong></div>
+      <div><span class="label">Received</span> <strong><%= @otp_record.received_at.iso8601 %></strong></div>
+    </div>
+  </div>
+
+  <a class="back" href="/otp/all?email=<%= CGI.escape(@email) %>">View all codes &rarr;</a>
+</div>

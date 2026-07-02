@@ -1,0 +1,70 @@
+# Name of your application. Used to uniquely configure containers.
+service: otp_mailbox
+
+# Name of the container image (use your-user/app-name on external registries).
+image: ankurp/otp_mailbox
+
+# Deploy to these servers.
+servers:
+  web:
+    - server
+
+# Enable SSL auto certification via Let's Encrypt.
+# Set config.assume_ssl and config.force_ssl in production.rb.
+proxy:
+  ssl: true
+  host: otpinbox.dev
+
+# Where you keep your container images.
+registry:
+  server: ghcr.io
+  username: ankurp
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Inject ENV variables into containers (secrets come from .kamal/secrets).
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - ACTION_MAILBOX_INGRESS_PASSWORD
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+    RELAY_URL: http://otp_mailbox-web:80/rails/action_mailbox/relay/inbound_emails
+    INGRESS_PASSWORD: ${ACTION_MAILBOX_INGRESS_PASSWORD}
+
+# Aliases for common commands
+aliases:
+  console: app exec --interactive --reuse "bin/rails console"
+  shell: app exec --interactive --reuse "bash"
+  logs: app logs -f
+  dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+
+# Persistent storage for sqlite database and Active Storage files.
+volumes:
+  - "otp_mailbox_storage:/rails/storage"
+
+# Bridge fingerprinted assets between versions
+asset_path: /rails/public/assets
+
+# Configure the image builder.
+builder:
+  arch: amd64
+
+ssh:
+  user: ubuntu
+
+# Exim mail server accessory for receiving inbound emails
+accessories:
+  exim:
+    image: ghcr.io/ankurp/otp_mailbox_exim:latest
+    host: server
+    port: "25:25"
+    env:
+      clear:
+        RELAY_URL: https://otpinbox.dev/rails/action_mailbox/relay/inbound_emails
+        RELAY_HOST: otpinbox.dev
+      secret:
+        - ACTION_MAILBOX_INGRESS_PASSWORD
+    files:
+      - config/exim/exim4.conf:/etc/exim4/exim4.conf.template
+      - config/exim/entrypoint.sh:/entrypoint.sh

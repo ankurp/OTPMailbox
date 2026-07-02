@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - ACTION_MAILBOX_INGRESS_PASSWORD=${ACTION_MAILBOX_INGRESS_PASSWORD}
+    volumes:
+      - rails_storage:/rails/storage
+
+  exim:
+    build:
+      context: .
+      dockerfile: Dockerfile.exim
+    ports:
+      - "25:25"
+    environment:
+      - RELAY_URL=http://web:80/rails/action_mailbox/relay/inbound_emails
+      - INGRESS_PASSWORD=${ACTION_MAILBOX_INGRESS_PASSWORD}
+    depends_on:
+      - web
+
+volumes:
+  rails_storage:

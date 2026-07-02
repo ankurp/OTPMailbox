@@ -1,0 +1,53 @@
+<% content_for :title, "OTP Mailbox" %>
+<div class="container">
+  <h1>OTP Mailbox</h1>
+  <p class="tagline">Receive emails, extract OTP codes, retrieve them via API.</p>
+
+  <div class="card">
+    <h2>How It Works</h2>
+    <ol class="steps">
+      <li>Send or forward an email containing an OTP to any address at this domain.</li>
+      <li>The mail server receives it and passes it to Action Mailbox.</li>
+      <li>OTP codes are automatically extracted and stored.</li>
+      <li>Retrieve the code in your browser (HTML) or as JSON using the recipient email address.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Endpoints</h2>
+    <p class="response">Each endpoint returns an HTML page by default. Append a <code>.json</code> extension to the path to get a JSON response instead.</p>
+
+    <div class="endpoint" style="margin-top: 1rem;">
+      <span class="method">GET</span>
+      <span class="url">/otp?email=user@example.com</span>
+    </div>
+    <p class="response">Returns the most recent OTP for the given email address. Use <code>/otp.json?email=...</code> for JSON:</p>
+    <pre><code>{
+  "email": "user@example.com",
+  "otp_code": "482913",
+  "subject": "Your verification code",
+  "sender": "noreply@service.com",
+  "received_at": "2026-07-01T12:00:00Z"
+}</code></pre>
+
+    <div class="endpoint" style="margin-top: 1.25rem;">
+      <span class="method">GET</span>
+      <span class="url">/otp?email=user@example.com&amp;after=2026-07-01T12:00:00Z</span>
+    </div>
+    <p class="response">Returns the most recent OTP received strictly after the given <code>after</code> timestamp (ISO 8601). Useful for polling for a new code after triggering a send.</p>
+
+    <div class="endpoint" style="margin-top: 1.25rem;">
+      <span class="method">GET</span>
+      <span class="url">/otp/all?email=user@example.com</span>
+    </div>
+    <p class="response">Returns the 10 most recent OTPs for the given email address. Use <code>/otp/all.json?email=...</code> for JSON.</p>
+  </div>
+
+  <div class="card">
+    <h2>Error Responses</h2>
+    <p><code>400</code> — Missing <code>email</code> parameter, or invalid <code>after</code> timestamp.</p>
+    <p><code>404</code> — No OTP found for that email.</p>
+  </div>
+
+  <footer>OTP Mailbox</footer>
+</div>

@@ -1,1 +1,7 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# robots.txt for OTP Mailbox
+# This service handles sensitive one-time-passcode data over its API.
+# Only the homepage is public; everything else is off-limits to crawlers.
+
+User-agent: *
+Allow: /$
+Disallow: /

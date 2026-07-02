@@ -1,4 +1,4 @@
-# robots.txt for OTP Mailbox
+# robots.txt for OTP Inbox
 # This service handles sensitive one-time-passcode data over its API.
 # Only the homepage is public; everything else is off-limits to crawlers.
 

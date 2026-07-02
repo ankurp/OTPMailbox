@@ -93,6 +93,39 @@ GET /otp/john/all.json                         # JSON response
 }
 ```
 
+### Stream the Next OTP (Server-Sent Events)
+
+```
+GET /otp/john/stream
+```
+
+Opens a [Server-Sent Events](https://developer.mozilla.org/docs/Web/API/Server-sent_events) stream that stays open and pushes the **next** OTP for `john@otpinbox.dev` the moment it arrives, then closes the connection. Delivery is push-based (Action Cable pub/sub) — there is no polling.
+
+The event is named `otp` and its `id` is the OTP record id:
+
+```
+event: otp
+id: 42
+data: {"email":"john@otpinbox.dev","otp_code":"123456","subject":"Your verification code","sender":"noreply@service.com","received_at":"2024-01-15T10:30:00Z"}
+```
+
+**Reconnect behaviour:** after an OTP is delivered the server closes the stream. A browser's `EventSource` automatically reconnects, sending the `Last-Event-ID` header; the server treats that reconnect as "already delivered" and responds `204 No Content`, which stops `EventSource` from reconnecting. A fresh connection (no `Last-Event-ID`) waits for the next OTP. If none arrives within 5 minutes the connection closes and the client reconnects to keep waiting.
+
+**Browser:**
+```js
+const source = new EventSource("/otp/john/stream");
+source.addEventListener("otp", (event) => {
+  const otp = JSON.parse(event.data);
+  console.log("Code:", otp.otp_code);
+  source.close();
+});
+```
+
+**cURL:**
+```bash
+curl -N https://yourdomain.com/otp/john/stream
+```
+
 ### Error Responses
 
 - `400` - Invalid `after` timestamp

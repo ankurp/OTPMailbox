@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   #   GET /otp/:username/all  → one_time_password#all    (10 most recent)
   resources :otp, only: :show, param: :username, controller: "one_time_password" do
     get :all, on: :member
+    get :stream, on: :member
   end
 
   # Homepage / docs

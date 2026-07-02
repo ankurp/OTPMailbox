@@ -9,7 +9,7 @@
       <li>Send or forward an email containing an OTP to any address at this domain.</li>
       <li>The mail server receives it and passes it to Action Mailbox.</li>
       <li>OTP codes are automatically extracted and stored.</li>
-      <li>Retrieve the code in your browser (HTML) or as JSON using the recipient email address.</li>
+      <li>Retrieve the code in your browser (HTML) or as JSON using the recipient email address, or stream the next one in real time.</li>
     </ol>
   </div>
 
@@ -41,6 +41,22 @@
       <span class="url">/otp/john/all</span>
     </div>
     <p class="response">Returns the 10 most recent OTPs for <code>john@otpinbox.dev</code>. Use <code>/otp/john/all.json</code> for JSON.</p>
+
+    <div class="endpoint" style="margin-top: 1.25rem;">
+      <span class="method">GET</span>
+      <span class="url">/otp/john/stream</span>
+    </div>
+    <p class="response">Opens a <a href="https://developer.mozilla.org/docs/Web/API/Server-sent_events" target="_blank" rel="noopener">Server-Sent Events</a> stream that stays open and pushes the <strong>next</strong> OTP for <code>john@otpinbox.dev</code> the moment it arrives, then closes. Delivery is push-based — no polling. The event is named <code>otp</code> and its <code>id</code> is the OTP record id:</p>
+    <pre><code>event: otp
+id: 42
+data: {"email":"john@otpinbox.dev","otp_code":"482913","subject":"Your verification code","sender":"noreply@service.com","received_at":"2026-07-01T12:00:00Z"}</code></pre>
+    <p class="response">After an OTP is delivered the server closes the stream. A browser's <code>EventSource</code> reconnects automatically with the <code>Last-Event-ID</code> header, which the server answers with <code>204 No Content</code> to stop further reconnects. A fresh connection waits for the next OTP; if none arrives within 5 minutes it closes and the client reconnects to keep waiting.</p>
+    <pre><code>const source = new EventSource("/otp/john/stream");
+source.addEventListener("otp", (event) =&gt; {
+  const otp = JSON.parse(event.data);
+  console.log("Code:", otp.otp_code);
+  source.close();
+});</code></pre>
   </div>
 
   <div class="card">

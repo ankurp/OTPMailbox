@@ -13,6 +13,19 @@
     </ol>
   </div>
 
+  <div class="card" data-controller="otp-stream">
+    <h2>Live Demo</h2>
+    <p class="response">Open a live stream and watch the next OTP arrive in real time. Enter a username (the part before <code>@otpinbox.dev</code>), start listening, then send a test email containing a code to that address.</p>
+    <div class="stream-form">
+      <input type="text" placeholder="john" autocomplete="off" spellcheck="false"
+             data-otp-stream-target="username"
+             data-action="keydown.enter->otp-stream#start">
+      <button type="button" data-otp-stream-target="toggle" data-action="otp-stream#toggle">Listen</button>
+    </div>
+    <p class="response" data-otp-stream-target="status">Idle.</p>
+    <div class="stream-log" data-otp-stream-target="log"></div>
+  </div>
+
   <div class="card">
     <h2>Endpoints</h2>
     <p class="response">Each endpoint returns an HTML page by default. Append a <code>.json</code> extension to the path to get a JSON response instead.</p>

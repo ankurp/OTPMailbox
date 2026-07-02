@@ -33,11 +33,11 @@ class OneTimePasswordController < ApplicationController
 
     @one_time_password = scope.first
 
-    return render_error("No OTP found for #{@email}", :not_found) if @one_time_password.nil?
-
     respond_to do |format|
       format.html
       format.json do
+        return render_error("No OTP found for #{@email}", :not_found) if @one_time_password.nil?
+
         render json: {
           email: @one_time_password.recipient_email,
           otp_code: @one_time_password.otp_code,

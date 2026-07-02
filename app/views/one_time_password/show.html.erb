@@ -3,15 +3,21 @@
   <h1>OTP Inbox</h1>
   <p class="tagline"><%= @email %></p>
 
-  <div class="card">
-    <h2>Most Recent Code</h2>
-    <div class="otp-code"><%= @one_time_password.otp_code %></div>
-    <div class="meta">
-      <div><span class="label">Subject</span> <strong><%= @one_time_password.subject %></strong></div>
-      <div><span class="label">Sender</span> <strong><%= @one_time_password.sender_email %></strong></div>
-      <div><span class="label">Received</span> <strong><%= @one_time_password.received_at.iso8601 %></strong></div>
+  <% if @one_time_password %>
+    <div class="card">
+      <h2>Most Recent Code</h2>
+      <div class="otp-code"><%= @one_time_password.otp_code %></div>
+      <div class="meta">
+        <div><span class="label">Subject</span> <strong><%= @one_time_password.subject %></strong></div>
+        <div><span class="label">Sender</span> <strong><%= @one_time_password.sender_email %></strong></div>
+        <div><span class="label">Received</span> <strong><%= @one_time_password.received_at.iso8601 %></strong></div>
+      </div>
     </div>
-  </div>
 
-  <a class="back" href="/otp/all?email=<%= CGI.escape(@email) %>">View all codes &rarr;</a>
+    <a class="back" href="<%= all_otp_path(params[:username]) %>">View all codes &rarr;</a>
+  <% else %>
+    <div class="card">
+      <p class="empty">No OTPs found for this email yet.</p>
+    </div>
+  <% end %>
 </div>

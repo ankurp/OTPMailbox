@@ -3,7 +3,7 @@ class OtpInboundMailbox < ApplicationMailbox
     otp_code = extract_otp_code
     return unless otp_code
 
-    OtpRecord.create!(
+    OneTimePassword.create!(
       recipient_email: recipient_email,
       otp_code: otp_code,
       subject: mail.subject,

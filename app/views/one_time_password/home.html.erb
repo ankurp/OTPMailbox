@@ -19,11 +19,11 @@
 
     <div class="endpoint" style="margin-top: 1rem;">
       <span class="method">GET</span>
-      <span class="url">/otp?email=user@example.com</span>
+      <span class="url">/otp/john</span>
     </div>
-    <p class="response">Returns the most recent OTP for the given email address. Use <code>/otp.json?email=...</code> for JSON:</p>
+    <p class="response">Returns the most recent OTP for <code>john@otpinbox.dev</code>. Use <code>/otp/john.json</code> for JSON:</p>
     <pre><code>{
-  "email": "user@example.com",
+  "email": "john@otpinbox.dev",
   "otp_code": "482913",
   "subject": "Your verification code",
   "sender": "noreply@service.com",
@@ -32,21 +32,21 @@
 
     <div class="endpoint" style="margin-top: 1.25rem;">
       <span class="method">GET</span>
-      <span class="url">/otp?email=user@example.com&amp;after=2026-07-01T12:00:00Z</span>
+      <span class="url">/otp/john?after=2026-07-01T12:00:00Z</span>
     </div>
     <p class="response">Returns the most recent OTP received strictly after the given <code>after</code> timestamp (ISO 8601). Useful for polling for a new code after triggering a send.</p>
 
     <div class="endpoint" style="margin-top: 1.25rem;">
       <span class="method">GET</span>
-      <span class="url">/otp/all?email=user@example.com</span>
+      <span class="url">/otp/john/all</span>
     </div>
-    <p class="response">Returns the 10 most recent OTPs for the given email address. Use <code>/otp/all.json?email=...</code> for JSON.</p>
+    <p class="response">Returns the 10 most recent OTPs for <code>john@otpinbox.dev</code>. Use <code>/otp/john/all.json</code> for JSON.</p>
   </div>
 
   <div class="card">
     <h2>Error Responses</h2>
-    <p><code>400</code> — Missing <code>email</code> parameter, or invalid <code>after</code> timestamp.</p>
-    <p><code>404</code> — No OTP found for that email.</p>
+    <p><code>400</code> — Invalid <code>after</code> timestamp.</p>
+    <p><code>404</code> — No OTP found for that user.</p>
   </div>
 
   <footer>OTP Inbox</footer>

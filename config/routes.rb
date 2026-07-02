@@ -4,10 +4,13 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # OTP endpoints — respond with HTML by default, or JSON when the
-  # request uses a .json extension (e.g. /otp.json).
-  get "otp", to: "otp#show"       # Latest OTP for an email
-  get "otp/all", to: "otp#index"  # All recent OTPs for an email
+  # request path uses a .json extension (e.g. /otp/john.json).
+  #   GET /otp/:username      → one_time_password#show  (most recent)
+  #   GET /otp/:username/all  → one_time_password#all    (10 most recent)
+  resources :otp, only: :show, param: :username, controller: "one_time_password" do
+    get :all, on: :member
+  end
 
   # Homepage / docs
-  root "otp#home"
+  root "one_time_password#home"
 end

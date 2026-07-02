@@ -54,15 +54,15 @@ Each endpoint returns an HTML page by default. Append a `.json` extension to the
 ### Get Latest OTP
 
 ```
-GET /otp?email=user@example.com
-GET /otp.json?email=user@example.com          # JSON response
-GET /otp.json?email=user@example.com&after=2024-01-15T10:30:00Z  # most recent after a time
+GET /otp/john
+GET /otp/john.json                             # JSON response
+GET /otp/john.json?after=2024-01-15T10:30:00Z  # most recent after a time
 ```
 
 **JSON Response:**
 ```json
 {
-  "email": "user@example.com",
+  "email": "john@otpinbox.dev",
   "otp_code": "123456",
   "subject": "Your verification code",
   "sender": "noreply@service.com",
@@ -73,14 +73,14 @@ GET /otp.json?email=user@example.com&after=2024-01-15T10:30:00Z  # most recent a
 ### Get All Recent OTPs
 
 ```
-GET /otp/all?email=user@example.com
-GET /otp/all.json?email=user@example.com      # JSON response
+GET /otp/john/all
+GET /otp/john/all.json                         # JSON response
 ```
 
 **JSON Response:**
 ```json
 {
-  "email": "user@example.com",
+  "email": "john@otpinbox.dev",
   "count": 2,
   "otp_records": [
     {
@@ -95,8 +95,8 @@ GET /otp/all.json?email=user@example.com      # JSON response
 
 ### Error Responses
 
-- `400` - Missing email parameter, or invalid `after` timestamp
-- `404` - No OTP found for the given email
+- `400` - Invalid `after` timestamp
+- `404` - No OTP found for the given user
 
 ## Development
 

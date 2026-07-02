@@ -1,10 +1,10 @@
 <% content_for :title, "OTPs for #{@email}" %>
 <div class="container">
   <h1>OTP Inbox</h1>
-  <p class="tagline"><%= @email %> &middot; <%= @otp_records.size %> recent</p>
+  <p class="tagline"><%= @email %> &middot; <%= @one_time_passwords.size %> recent</p>
 
-  <% if @otp_records.any? %>
-    <% @otp_records.each do |record| %>
+  <% if @one_time_passwords.any? %>
+    <% @one_time_passwords.each do |record| %>
       <div class="card">
         <div class="otp-code"><%= record.otp_code %></div>
         <div class="meta">

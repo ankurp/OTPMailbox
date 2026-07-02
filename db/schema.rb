@@ -48,7 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_142711) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "otp_records", force: :cascade do |t|
+  create_table "one_time_passwords", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "otp_code", null: false
     t.datetime "received_at", null: false
@@ -56,8 +56,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_142711) do
     t.string "sender_email"
     t.string "subject"
     t.datetime "updated_at", null: false
-    t.index ["received_at"], name: "index_otp_records_on_received_at"
-    t.index ["recipient_email"], name: "index_otp_records_on_recipient_email"
+    t.index ["received_at"], name: "index_one_time_passwords_on_received_at"
+    t.index ["recipient_email"], name: "index_one_time_passwords_on_recipient_email"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

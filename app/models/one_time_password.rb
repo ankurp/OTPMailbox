@@ -1,4 +1,4 @@
-class OtpRecord < ApplicationRecord
+class OneTimePassword < ApplicationRecord
   validates :recipient_email, presence: true
   validates :otp_code, presence: true
   validates :received_at, presence: true

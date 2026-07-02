@@ -26,11 +26,15 @@ export default class extends Controller {
       return
     }
 
+    // Start fresh every time: clear any previous results and status.
+    if (this.hasLogTarget) this.logTarget.replaceChildren()
+
+    const address = `${username}@otpinbox.dev`
     const url = `/otp/${encodeURIComponent(username)}/stream`
     this.source = new EventSource(url)
 
     this.source.addEventListener("open", () => {
-      this.setStatus(`Listening for the next OTP at ${username}@otpinbox.dev…`)
+      this.setStatus(`Listening… send the full email to ${address}`)
     })
 
     this.source.addEventListener("otp", (event) => {
@@ -77,9 +81,17 @@ export default class extends Controller {
 
     const meta = document.createElement("div")
     meta.className = "stream-meta"
-    meta.textContent = `${otp.subject || "(no subject)"} — from ${otp.sender || "unknown"} at ${otp.received_at}`
+    meta.textContent = `${otp.subject || "(no subject)"} — from ${otp.sender || "unknown"} at ${this.formatTime(otp.received_at)}`
     item.appendChild(meta)
 
     this.logTarget.prepend(item)
+  }
+
+  // Converts an ISO 8601 timestamp (e.g. "2026-07-02T04:59:42Z") into the
+  // viewer's local date and time. Falls back to the raw value if unparseable.
+  formatTime(value) {
+    if (!value) return "unknown time"
+    const date = new Date(value)
+    return isNaN(date) ? value : date.toLocaleString()
   }
 }
